@@ -4,7 +4,6 @@ import { Redirect } from 'react-router-dom';
 class Alert extends Component{
     constructor(props){
         super(props);
-        console.log(this.props.playerKey)
     }
 
     render(){
@@ -21,7 +20,7 @@ class Alert extends Component{
                 </div>
             );
         }else if(this.props.elementDisplay === 'redirect'){
-            return <Redirect to={this.props.redirect} playerKey={this.props.playerKey} />;
+            return <Redirect to={this.props.redirect}/>;
         }else{
             return <span></span>;
         }

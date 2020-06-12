@@ -10,7 +10,7 @@ class Menu extends Component {
     render(){
         return(
             <nav id="menu"  className="navbar navbar-expand-lg py-2">
-                <Link className="navbar-brand"  id="brand" to='/'>FIDU</Link>
+                <Link className="navbar-brand"  id="brand" to='/'>FIDU <br/> GAMES</Link>
                 <button className="navbar-toggler" 
                     type="button"  
                     data-toggle="collapse" 

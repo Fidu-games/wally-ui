@@ -27,14 +27,14 @@ class Home extends Component{
             </section>
             <section id="columns" className="container">
                 <div className="row mx-0 p-5">
-                    <div class="col-lg-12">
-                        <p class="bg-text">
+                    <div className="col-lg-12">
+                        <p className="bg-text">
                             This is a 2d online multiplayer video game that is about space battles with powerful
                             but adorable creatures. You can play with your friends locally or remotely in small
                             worlds but full of surprises, your friends and your need to collect points to pass the
                             rounds until you reach the last level where you will get great prizes.
                         </p>
-                        <p class="bg-text">This is <b>WALLY</b></p>
+                        <p className="bg-text">This is <b>WALLY</b></p>
                     </div>
                     <div className="col-md-4">
                         <div className="card">

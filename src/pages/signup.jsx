@@ -65,34 +65,6 @@ class SignUp extends Component{
         }
     }
 
-    async verifyEmailCoincidences(email){
-        try{
-            const headers = new Headers();
-
-            headers.append('Content-Type', 'application/json');
-
-            const credentials = {
-                method: 'post',
-                headers: headers,
-                mode: 'cors',
-                cache: 'default',
-                body: JSON.stringify({
-                    'email': email
-                })
-            };
-
-            const res = await fetch(`${config.api.url}/utilities/searchCoincidencesForEmail`, credentials);
-
-            if(res.ok){
-                return await res.json();
-            }else{
-                throw new Error('Hubo un error al intentar consultar las coincidencias de email');
-            }
-        }catch(e){
-            console.log(e);
-        }
-    }
-
     async validateEmail(){
         const emailBox = this.refs.email;
         const email = emailBox.value;
@@ -103,48 +75,14 @@ class SignUp extends Component{
             this.setState({ emailValidity: false })
             message = 'La estructura del email es invalida, debe contener un @ y un dominio';
         }else{
-            if((await this.verifyEmailCoincidences(email)).thereIsTheSameThing){
-                this.changeInputState(emailBox, false);
-                this.setState({ emailValidity: false })
-                message = 'Ya existe una cuenta con este email';
-            }else{
-                this.changeInputState(emailBox, true);
-                this.setState({ emailValidity: true })
-                message = 'Email correcto';
-            }
+            this.changeInputState(emailBox, true);
+            this.setState({ emailValidity: true })
+            message = 'Email correcto';
         }
 
         this.setState({
             messageEmailError: message
         });
-    }
-
-    async verifyNicknameCoincidences(nickname){
-        try{
-            const headers = new Headers();
-
-            headers.append('Content-Type', 'application/json');
-
-            const credentials = {
-                method: 'post',
-                headers: headers,
-                mode: 'cors',
-                cache: 'default',
-                body: JSON.stringify({
-                    'nickname': nickname
-                })
-            };
-
-            const request = await fetch(`${config.api.url}/utilities/searchCoincidencesForNickname`, credentials);
-
-            if(request.ok){
-                return await request.json();
-            }else{
-                throw new Error('Fallo al buscar coincidencias para este nickname');
-            }
-        }catch(e){
-            console.log(e);
-        }
     }
 
     async verifyNickname(){
@@ -165,15 +103,9 @@ class SignUp extends Component{
                     this.setState({nicknameValidity: false});
                     message = `El nickname debe tener una longitud menor a 16 caracteres. (Longitud actual ${nickname.length})`;
                 }else{
-                    if((await this.verifyNicknameCoincidences(nickname)).thereIsTheSameThing){
-                        this.changeInputState(this.refs.nickname, false);
-                        this.setState({nicknameValidity: false});
-                        message = `Este nickname ya existe`;
-                    }else{
-                        this.changeInputState(this.refs.nickname, true);
-                        this.setState({nicknameValidity: true});
-                        message = 'El nickname es correcto';
-                    }
+                    this.changeInputState(this.refs.nickname, true);
+                    this.setState({nicknameValidity: true});
+                    message = 'El nickname es correcto';
                 }
             }
         }
@@ -196,7 +128,7 @@ class SignUp extends Component{
                 body: JSON.stringify(data)
             };
 
-            const request = await fetch(`${config.api.url}/sign_up`, credentials);
+            const request = await fetch(`${config.api.url}/user/sign_up`, credentials);
 
             if(request.ok){
                 return await request.json();
@@ -211,9 +143,21 @@ class SignUp extends Component{
 
     handleResponse(res){
         console.log(res);
-        this.setState({
-            alert_state: 'redirect'
-        })
+
+        if(res == null || !res.success){
+            this.setState({
+                button_disabled: false,
+                alert_state: 'error',
+                message: res.messages || res.errors
+            })
+        }else{
+            localStorage.setItem('token', res.data.token);
+
+            this.setState({
+                button_disabled: false,
+                alert_state: 'redirect'
+            })
+        }
     }
 
     async handleSignUp(e){
@@ -236,21 +180,7 @@ class SignUp extends Component{
             }
     
             const response = await this.sendFormData(userData);
-    
-            if(!response.success){
-                let message = typeof response.message == 'object' ?  response.message[0].msg : response.message;
-                this.setState({
-                    button_disabled: false,
-                    alert_state: 'error',
-                    message: message
-                })
-            }else{
-                this.setState({
-                    button_disabled: false,
-                    alert_state: 'none'
-                })
-                this.handleResponse(response);
-            }
+            this.handleResponse(response);
         }else{
             alert("Llene correctamente todos los campos antes de continuar.");
         }
@@ -266,6 +196,7 @@ class SignUp extends Component{
                                 <h1 className='mb-2'>Registro</h1>
                             </div>
                             <hr/>
+                            <div>{ this.state.debug_area }</div>
                             <div className='col-lg-12 d-flex justify-content-center align-items-center'>
                                 <div className='mt-0 w-50'>
                                     <div className='form-group mt-5'>
@@ -330,7 +261,7 @@ class SignUp extends Component{
                                         <span className={`px-3 my-4 text-${this.state.pass_alert_color}`}>{ this.state.pass_alert }</span>
                                     </div>
                                     <div>
-                                        <Alert elementDisplay={this.state.alert_state} message={this.state.message} redirect='/home' />
+                                        <Alert elementDisplay={this.state.alert_state} message={this.state.message} redirect='/player' />
                                     </div>
                                     <button type='submit'  className='btn btn-primary btn-block mt-5' disabled={ this.state.button_disabled }>
                                         registrar
