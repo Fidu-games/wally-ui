@@ -188,7 +188,9 @@ class SignUp extends Component{
 
     render(){
         return (
-            <DefaultLayout title='signup' links={this.links}>
+            <DefaultLayout title='signup' links={[
+                {'rel': 'stylesheet', 'href': '/stylesheets/signup.css'}
+            ]}>
                 <div className="row pt-2 m-0" id='content'>
                     <div className="col-lg-12 p-0">
                         <form className='form p-5 bg-light' id='sign-up-form' onSubmit={this.handleSignUp}>
@@ -198,7 +200,7 @@ class SignUp extends Component{
                             <hr/>
                             <div>{ this.state.debug_area }</div>
                             <div className='col-lg-12 d-flex justify-content-center align-items-center'>
-                                <div className='mt-0 w-50'>
+                                <div id="formFields" className="mt-0">
                                     <div className='form-group mt-5'>
                                         <label htmlFor='name'>Nombre completo</label>
                                         <input type='text'

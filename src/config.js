@@ -1,5 +1,5 @@
 const protocol = 'http',
-      hostname = 'localhost',
+      hostname = '192.168.1.76',
       port = 8080;
 
 export default {

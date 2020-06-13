@@ -12,4 +12,14 @@
   margin: 0 auto;
 }
 
+#formFields{
+  width: 50%;
+}
+
+@media only screen and (max-width: 760px){
+  #formFields{
+    width: 100%;
+  }
+}
+
 /*# sourceMappingURL=signup.css.map */
