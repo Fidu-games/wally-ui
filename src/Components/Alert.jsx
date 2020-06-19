@@ -20,7 +20,7 @@ class Alert extends Component{
                 </div>
             );
         }else if(this.props.elementDisplay === 'redirect'){
-            return <Redirect to={this.props.redirect}/>;
+            return <Redirect to={this.props.redirect} />;
         }else{
             return <span></span>;
         }

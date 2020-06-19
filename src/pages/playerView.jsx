@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import Alert from '../Components/Alert';
 import config from '../config';
 import GameLayout from '../layouts/game';
+import Player from '../Components/Player';
+import Customizer from '../Components/Customizer';
+import CodeRegister from '../Components/CodeRegister';
 
 class PlayerView extends Component{
     constructor(props){
@@ -10,11 +13,14 @@ class PlayerView extends Component{
             loading: true,
             loading_state: 'Loading...',
             alert_state: '',
-            redirect: '/login'
+            redirect: '/login',
+            sprite_color: 'blue'
         }
 
+        this.selectedColor = 'blue';
         this.playerData = {};
         this.closeSession = this.closeSession.bind(this);
+        this.changePlayerSprite = this.changePlayerSprite.bind(this);
     }
 
     async getUserData(token){
@@ -90,6 +96,13 @@ class PlayerView extends Component{
         }
     }
 
+    changePlayerSprite(color){
+        this.selectedColor = color;
+        this.setState({
+            sprite_color: color
+        })
+    }
+
     render(){
         if(this.state.loading){
             return (
@@ -100,14 +113,18 @@ class PlayerView extends Component{
                 <Alert elementDisplay={this.state.alert_state} redirect={this.state.redirect}/>
             );
         }else{
-            return(
-                <GameLayout title='profile'>
-                    <p>name: { this.playerData.name }</p>
-                    <p>nickname: { this.playerData.nickname }</p>
-                    <p>email: { this.playerData.email }</p>
-                    <p>password: { this.playerData.password }</p>
-                    <p>date: { this.playerData.date }</p>
+            return (
+                <GameLayout title='profile' links={[
+                    {'rel': 'stylesheet', 'href': '/stylesheets/game.css'}
+                ]}>
                     <button className="btn btn-danger my-2 my-sm-0" onClick={this.closeSession}>Log out</button>
+                    <div className="floating-div">
+                        <div className="player-view-container">
+                            <Player nickname={this.playerData.nickname} color={this.state.sprite_color}/>
+                            <Customizer colors={['blue', 'red', 'green']} onChange={this.changePlayerSprite}/>
+                            <CodeRegister color={this.state.sprite_color} nickname={this.playerData.nickname}/>
+                        </div>
+                    </div>
                 </GameLayout>
             );
         }

@@ -15,7 +15,7 @@ class Home extends Component{
                 <div className="title row pt-5">
                 <h1 className="col-md-12 mt-5 mb-2">Wally</h1>
                 <div className="col-md-12 text-center mt-3 px-5">
-                    <Link to="/login" id="play_now" className="btn btn-primary awesome mr-sm-5">
+                    <Link to="/create" id="play_now" className="btn btn-primary awesome mr-sm-5">
                         play now
                     </Link>
                     <Link to="/sign_up" id="sign_up" className="btn btn-secondary awesome">
@@ -46,7 +46,7 @@ class Home extends Component{
                     <div className="col-md-4">
                         <div className="card">
                             <div className="card-body d-flex justify-content-center">
-                                <img src="/images/wallace.png" className="img-fluid" width="200px" height="200px" alt='wallace'/>
+                                <img src="/images/wallace_blue.png" className="img-fluid" width="200px" height="200px" alt='wallace'/>
                             </div>
                         </div> 
                     </div>
