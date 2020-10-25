@@ -1,6 +1,7 @@
 #content {
-  background-image: url(../images/espacio_lavel1.png);
+  background-color: #111;
   background-attachment: fixed;
+  color: #fff;
 }
 #content #planet {
   display: flex;
@@ -10,6 +11,16 @@
 }
 #content #planet img {
   margin: 0 auto;
+}
+
+#formFields{
+  width: 50%;
+}
+
+@media only screen and (max-width: 760px){
+  #formFields{
+    width: 100%;
+  }
 }
 
 /*# sourceMappingURL=signup.css.map */

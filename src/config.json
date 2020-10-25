@@ -1,0 +1,14 @@
+{
+  "api": {
+    "protocol": "http",
+    "hostname": "localhost",
+    "port": 8080,
+    "url": "http://localhost:8080"
+  },
+  "peer": {
+    "protocol": "http",
+    "hostname": "localhost",
+    "port": 8090,
+    "url": "http://localhost:8090/"
+  }
+}

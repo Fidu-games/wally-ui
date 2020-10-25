@@ -1,134 +1,168 @@
-import React, { Component } from 'react';
-import Alert from '../Components/Alert';
-import config from '../config';
-import GameLayout from '../layouts/game';
-import Player from '../Components/Player';
-import Customizer from '../Components/Customizer';
-import CodeRegister from '../Components/CodeRegister';
+import React, { Component } from 'react'
+import * as API from '../api/API'
+import GameLayout from '../layouts/game'
+import Player from '../components/Player'
+import Customizer from '../components/Customizer'
+import CodeRegister from '../components/CodeRegister'
 
-class PlayerView extends Component{
-    constructor(props){
-        super(props);
-        this.state = {
-            loading: true,
-            loading_state: 'Loading...',
-            alert_state: '',
-            redirect: '/login',
-            sprite_color: 'blue'
-        }
+import UpdateForm from '../components/updateForm'
+import CodeForm from '../components/CodeForm'
 
-        this.selectedColor = 'blue';
-        this.playerData = {};
-        this.closeSession = this.closeSession.bind(this);
-        this.changePlayerSprite = this.changePlayerSprite.bind(this);
+import '../stylesheets/player.css'
+
+class PlayerView extends Component {
+  constructor (props) {
+    super()
+    this.state = {
+      loading: true,
+      loading_state: 'Loading...',
+      spriteColor: 'blue',
+      player: {},
+      currentView: 0,
+      updateError: null,
+      updateForm: {}
     }
 
-    async getUserData(token){
-        try{
-            let result = await fetch(`${config.api.url}/user/${token}`);
-            if(result.ok){
-                return await result.json();
-            }
-            throw new Error('No pudimos contactar con el servidor');
-        }catch(e){
-            console.log(e);
-        }
+    this.handleCloseSession = this.handleCloseSession.bind(this)
+    this.handleChangePlayerSprite = this.handleChangePlayerSprite.bind(this)
+    this.handleUpdate = this.handleUpdate.bind(this)
+    this.changeView = this.changeView.bind(this)
+    this.handleChange = this.handleChange.bind(this)
+    this.handleNewRoom = this.handleNewRoom.bind(this)
+  }
+
+  handleChange (e) {
+    const prevData = this.state.updateForm
+    prevData[e.target.name] = e.target.value
+    this.setState({ updateForm: prevData })
+  }
+
+  async checkAuthentication () {
+    if (!API.token) {
+      const result = await API.Auth.refreshToken()
+      if (!result.success) {
+        this.props.history.push('/login')
+        return false
+      }
     }
+    return true
+  }
 
-    async deleteToken(token){
-        try{
-            let result = await fetch(`${config.api.url}/user/session`, {
-                method: 'DELETE',
-                headers:{ 'Content-Type': 'application/json' },
-                mode: 'cors',
-                cache: 'default',
-                body: JSON.stringify({ token: token })
-            });
-            
-            if(result.ok){
-                return await result.json();
-            }
-
-            throw new Error('No se ha podido contactar con el servidor');
-        }catch(e){
-            console.log(e);
-        }
+  async componentDidMount () {
+    if (!(await this.checkAuthentication())) return
+    this.setState({ loading_state: 'Verifying player data...' })
+    const result = await API.Player.getPlayer()
+    console.log(result)
+    if (result && result.success) {
+      this.setState({
+        player: result.data,
+        loading: false,
+        updateForm: { name: result.data.name, nickname: result.data.nickname }
+      })
+    } else {
+      this.props.history.push('/')
     }
+  }
 
-    refuse(redirect = '/login'){
-        localStorage.removeItem('token');
-        this.setState({
-            redirect: redirect,
-            loading: false,
-            alert_state: 'redirect'
-        });
+  async handleCloseSession () {
+    this.setState({
+      loading: true,
+      loading_state: 'Wait a few seconds...'
+    })
+    await API.Auth.logOut()
+    this.props.history.push('/')
+  }
+
+  handleChangePlayerSprite (color) {
+    this.setState({
+      spriteColor: color
+    })
+  }
+
+  async handleUpdate (e) {
+    e.preventDefault()
+    const name = this.state.updateForm.name || this.state.player.name
+    const nickname = this.state.updateForm.nickname || this.state.player.nickname
+
+    const result = await API.Player.updatePlayer(name, nickname)
+    if (!result.success) {
+      this.setState({
+        updateError: result.errors
+      })
+      return
     }
+    const prevData = this.state.player
+    prevData.name = name
+    prevData.nickname = nickname
+    this.setState({ prevData })
+  }
 
-    async componentWillMount(){
-        this.setState({ loading_state: 'Verifying player data...'});
-        let token = localStorage.getItem('token');
-        if(token == null || token == undefined || !(token.length > 0)) {
-            this.refuse(); 
-            return
-        }
-        let result = await this.getUserData(token);
-        if(result && result.success){
-            this.setState({ loading_state: 'Loading assets...'});
-            this.playerData = result.data.player;
-            this.setState({ loading: false });
-        }else{
-            this.refuse();
-        }
-    }
+  changeView (id) {
+    this.setState({ currentView: id })
+  }
 
-    async closeSession(){
-        this.setState({
-            loading: true,
-            loading_state: 'Closing session...'
-        })
-        let token = localStorage.getItem('token');
-        let close = await this.deleteToken(token);
-        if(close != null && close.success){
-            localStorage.removeItem('token');
-            this.refuse('/');
-        }else{
-            console.log(close);
-        }
-    }
+  handleNewRoom () {
+    this.props.history.push({
+      pathname: '/game',
+      state: {
+        type: 'create'
+      }
+    })
+  }
 
-    changePlayerSprite(color){
-        this.selectedColor = color;
-        this.setState({
-            sprite_color: color
-        })
-    }
-
-    render(){
-        if(this.state.loading){
-            return (
-                <p>{ this.state.loading_state }</p>
-            );
-        }else if(this.state.alert_state == 'redirect'){
-            return (
-                <Alert elementDisplay={this.state.alert_state} redirect={this.state.redirect}/>
-            );
-        }else{
-            return (
-                <GameLayout title='profile' links={[
-                    {'rel': 'stylesheet', 'href': '/stylesheets/game.css'}
-                ]}>
-                    <button className="btn btn-danger my-2 my-sm-0" onClick={this.closeSession}>Log out</button>
-                    <div className="floating-div">
-                        <div className="player-view-container">
-                            <Player nickname={this.playerData.nickname} color={this.state.sprite_color}/>
-                            <Customizer colors={['blue', 'red', 'green']} onChange={this.changePlayerSprite}/>
-                            <CodeRegister color={this.state.sprite_color} nickname={this.playerData.nickname}/>
-                        </div>
+  render () {
+    if (this.state.loading) return <p>{this.state.loading_state}</p>
+    return (
+      <GameLayout>
+        <div className='game-shadow'>
+          <div className='row'>
+            {
+              this.state.currentView === 0 && (
+                <div className='Menu col-lg-12'>
+                  <div className='buttons-container'>
+                    <div className='btn-cont'>
+                      <h1 className='mt-5 mb-2'>{'Wally'.trim()}</h1>
+                      <p>{this.state.player.nickname}</p>
                     </div>
-                </GameLayout>
-            );
-        }
-    }
+                    <div className='btn-cont'>
+                      <button onClick={this.handleNewRoom}>Crear una sala</button>
+                    </div>
+                    <div className='btn-cont'>
+                      <button onClick={() => this.changeView(2)}>Entrar a una sala</button>
+                    </div>
+                    <div className='btn-cont'>
+                      <button onClick={() => this.changeView(3)}>Actualizar Datos</button>
+                    </div>
+                    <div className='btn-cont'>
+                      <button onClick={this.handleCloseSession}>Salir</button>
+                    </div>
+                  </div>
+                </div>
+              )
+            }
+            {
+              this.state.currentView === 2 && (
+                <CodeForm
+                  onCancel={() => this.changeView(0)}
+                />
+              )
+            }
+            {
+              this.state.currentView === 3 && (
+                <UpdateForm
+                  prevForm={this.state.updateForm}
+                  onSubmit={this.handleUpdate}
+                  onChange={this.handleChange}
+                  error={this.state.updateError}
+                  onChangeView={() => this.changeView(0)}
+                />
+              )
+            }
+          </div>
+        </div>
+      </GameLayout>
+    )
+  }
 }
 
-export default PlayerView;
+export default PlayerView

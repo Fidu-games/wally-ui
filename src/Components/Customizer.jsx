@@ -1,46 +1,41 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react'
 
-class ColorCube extends Component{
-    constructor(props){
-        super(props);
-        this.change = this.change.bind(this);
-    }
+import '../stylesheets/customizer.css'
 
-    change(){
-        document.querySelectorAll('.color-box').forEach(box => {
-            box.style.border = 0;
-        });
+function ColorCube (props) {
+  const handleClick = () => {
+    props.onChange(props.color)
+  }
+  const style = props.selected ? '6px solid gray' : ''
 
-        this.refs.box.style.border = '6px solid grey';
-
-        this.props.onChange(this.props.color);
-    }
-
-    render(){
-        return(
-            <div className={`col-s-4 color-box ${this.props.color}-player`} 
-                 onClick={this.change}
-                 ref="box"></div>
-        );
-    }
+  return (
+    <div
+      style={{ border: style }}
+      className={`color-box ${props.color}-player`}
+      onClick={handleClick}
+    />
+  )
 }
 
-class Customizer extends Component{
-    constructor(props){
-        super(props);
-    }
+export default function Customizer (props) {
+  const [selectedColor, setSelectedColor] = useState('')
+  const handleColorChange = color => {
+    props.onChange(color)
+    setSelectedColor(props.colors.find(c => c === color))
+  }
 
-    createColor(color){
-        return <ColorCube color={color} onChange={this.props.onChange}/>
-    }
-
-    render(){
-        return (
-            <div className="colorGird row">
-                { this.props.colors.map(color => this.createColor(color)) }
-            </div>
-        );
-    }
+  return (
+    <div className='colorGird'>
+      <div className='color-container'>
+        {props.colors.map((color, i) => (
+          <ColorCube
+            key={i}
+            color={color}
+            onChange={handleColorChange}
+            selected={selectedColor === color}
+          />
+        ))}
+      </div>
+    </div>
+  )
 }
-
-export default Customizer;

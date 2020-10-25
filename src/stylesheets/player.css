@@ -1,0 +1,31 @@
+.Player{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5%;
+}
+
+.player-nickname{
+    font-family: "Major Mono Display", monospace;
+    font-weight: bold;
+    font-size: 20px;
+    text-align: center;
+    padding:0.5rem 0;
+    color:#fff;
+}
+
+.player-view-container {
+}
+
+.player-sprite-container{
+  width: 100%;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10% 0;
+}
+
+.player-sprite{
+    width: 200px;
+}
